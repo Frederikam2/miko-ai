@@ -3,10 +3,7 @@
 import starter.gameLoop
 
 /**
- * Entry point
- * is called by screeps
- *
- * must not be removed by DCE
+ * Called by Screeps
  */
 @Suppress("unused")
 fun loop() {

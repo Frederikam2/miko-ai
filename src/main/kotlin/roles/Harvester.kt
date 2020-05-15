@@ -1,15 +1,26 @@
 package roles
 
-import ext.assignSource
 import ext.findBestSpawn
-import ext.getSource
+import memory.SourceAssignment
 import memory.isDepositing
 import memory.isGathering
 import memory.setDepositing
 import memory.setGathering
+import memory.source
+import memory.sources
 import memory.target
-import screeps.api.*
+import screeps.api.BodyPartConstant
+import screeps.api.CARRY
+import screeps.api.Creep
+import screeps.api.ERR_NOT_IN_RANGE
+import screeps.api.FIND_SOURCES
+import screeps.api.Game
+import screeps.api.MOVE
+import screeps.api.RESOURCE_ENERGY
+import screeps.api.Source
+import screeps.api.WORK
 import screeps.api.structures.StructureSpawn
+import screeps.utils.unsafe.jsObject
 
 object Harvester : IRole {
     override val name = "harvester"
@@ -19,12 +30,10 @@ object Harvester : IRole {
     }
 
     override fun loop(creep: Creep) {
-        if (creep.memory.target == null) creep.room.assignSource(creep)
-
         // Empty "belly"
         if (creep.store.getUsedCapacity() == 0) {
             creep.memory.setGathering()
-            creep.memory.target = creep.room.getSource(creep)?.id
+            creep.memory.target = null
         }
 
         // Full "belly"
@@ -42,11 +51,39 @@ object Harvester : IRole {
         }
 
         if (creep.memory.isGathering) {
-            val source = Game.getObjectById<Source>(creep.memory.target)!!
+            val source = creep.getSource() ?: return
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(source)
             }
         }
+    }
+
+    private fun Creep.getSource(): Source? {
+        if (memory.source != null) {
+            return Game.getObjectById(memory.source)
+        }
+
+        // Assign source
+        if (room.memory.sources == null) {
+            println(room.memory.sources)
+            room.memory.sources = room.find(FIND_SOURCES)
+                    .map { jsObject<SourceAssignment> { id = it.id } }
+                    .toTypedArray()
+        }
+
+        println(JSON.stringify(room.memory.sources))
+
+        val assignment = room.memory.sources!!.find { it.harvester == null }
+
+        if (assignment == null) {
+            println("Failed to find assignment for $name")
+            return null
+        }
+
+        assignment.harvester = name
+        memory.source = assignment.id
+        println("Assigned $name to source $id in $room")
+        return Game.getObjectById(memory.source)
     }
 
  }

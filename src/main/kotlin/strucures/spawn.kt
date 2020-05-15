@@ -1,6 +1,7 @@
 package strucures
 
 import memory.role
+import memory.room
 import roles.Harvester
 import roles.IRole
 import roles.Upgrader
@@ -41,8 +42,10 @@ fun runSpawnLogic(room: Room) {
  */
 private fun StructureSpawn.handleSpawn(role: IRole, budget: Int): Boolean {
     val parts = role.spawn(budget)?: return false
+    val roomName = room.name
     val creepMemory = jsObject<CreepMemory> {
         this.role = role.name
+        this.room = roomName
     }
     val status = spawnCreep(parts, "${role.name}-${Game.time.toString()}", jsObject {
         memory = creepMemory

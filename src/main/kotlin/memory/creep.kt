@@ -1,6 +1,7 @@
 package memory
 
 import screeps.api.CreepMemory
+import screeps.api.RoomPosition
 import screeps.utils.memory.memory
 
 val CreepMemory.isGathering get() = state == "gathering"
@@ -13,6 +14,8 @@ var CreepMemory.room by memory<String> { throw notInitialised() }
 var CreepMemory.target by memory<String>()
 var CreepMemory.state by memory<String>()
 var CreepMemory.source by memory<String>()
+/** Position where this creep should stand while harvesting */
+val CreepMemory.harvestPos by memory<RoomPosition>()
 
 fun notInitialised(): IllegalStateException {
     throw IllegalStateException("This memory property must be initialised before being accessed")

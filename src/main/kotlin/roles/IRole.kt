@@ -5,6 +5,11 @@ import screeps.api.Creep
 import screeps.api.CreepMemory
 import screeps.api.Room
 
+val roles: dynamic = object {
+    val upgrader = Upgrader
+    val harvester = Harvester
+}
+
 interface IRole {
     val name: String
     fun loop(creep: Creep)

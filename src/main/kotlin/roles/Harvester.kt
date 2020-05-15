@@ -26,7 +26,10 @@ object Harvester : IRole {
     override val name = "harvester"
 
     override fun spawn(budget: Int): Array<BodyPartConstant>? {
-        return arrayOf(WORK, CARRY, MOVE)
+        return when {
+            budget >= 300 -> arrayOf(WORK, CARRY, CARRY, MOVE, MOVE) // 300
+            else -> arrayOf(WORK, CARRY, MOVE) // 200
+        }
     }
 
     override fun loop(creep: Creep) {

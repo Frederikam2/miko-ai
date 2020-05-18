@@ -22,8 +22,8 @@ fun runSpawnLogic(room: Room) {
     val spawn = room.find(FIND_MY_SPAWNS).firstOrNull() { it.spawning == null }
     spawn ?: return
 
-    val harvesters = creeps.count { it.memory.role == Harvester.name }
-    val upgraders = creeps.count { it.memory.role == Upgrader.name }
+    val harvesters = creeps.count { it.memory.role == Harvester }
+    val upgraders = creeps.count { it.memory.role == Upgrader }
 
     if (harvesters == 0) {
         spawn.handleSpawn(Harvester, room.energyAvailable)
@@ -44,7 +44,7 @@ private fun StructureSpawn.handleSpawn(role: IRole, budget: Int): Boolean {
     val parts = role.spawn(budget)?: return false
     val roomName = room.name
     val creepMemory = jsObject<CreepMemory> {
-        this.role = role.name
+        this.role = role
         this.room = roomName
     }
     val status = spawnCreep(parts, "${role.name}-${Game.time.toString()}", jsObject {

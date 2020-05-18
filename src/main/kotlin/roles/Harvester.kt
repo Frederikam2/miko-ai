@@ -1,6 +1,7 @@
 package roles
 
 import ext.findBestSpawn
+import ext.info
 import memory.SourceAssignment
 import memory.isDepositing
 import memory.isGathering
@@ -37,6 +38,7 @@ object Harvester : IRole {
         if (creep.store.getUsedCapacity() == 0) {
             creep.memory.setGathering()
             creep.memory.target = null
+            creep.info("Gathering", true)
         }
 
         // Full "belly"
@@ -44,6 +46,7 @@ object Harvester : IRole {
             // change our state to hauling
             creep.memory.setDepositing()
             creep.memory.target = creep.room.findBestSpawn().id
+            creep.info("depositing", true)
         }
 
         if (creep.memory.isDepositing) {
@@ -68,13 +71,11 @@ object Harvester : IRole {
 
         // Assign source
         if (room.memory.sources == null) {
-            println(room.memory.sources)
+            println("Room '${room.name}' sources: ${room.memory.sources}")
             room.memory.sources = room.find(FIND_SOURCES)
                     .map { jsObject<SourceAssignment> { id = it.id } }
                     .toTypedArray()
         }
-
-        println(JSON.stringify(room.memory.sources))
 
         val assignment = room.memory.sources!!.find { it.harvester == null }
 
@@ -85,7 +86,7 @@ object Harvester : IRole {
 
         assignment.harvester = name
         memory.source = assignment.id
-        println("Assigned $name to source $id in $room")
+        this.info("I've been assigned to '$id'", true)
         return Game.getObjectById(memory.source)
     }
 

@@ -8,6 +8,4 @@ external object SourceAssignment {
     var harvester: String?
 }
 
-
-
 var RoomMemory.sources by memory<Array<SourceAssignment>>()

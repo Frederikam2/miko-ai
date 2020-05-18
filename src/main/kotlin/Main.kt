@@ -2,8 +2,6 @@
 
 import memory.role
 import memory.sources
-import roles.IRole
-import roles.roles
 import screeps.api.Creep
 import screeps.api.FIND_MY_CREEPS
 import screeps.api.Game
@@ -32,7 +30,7 @@ fun loop() {
     houseKeeping(Game.creeps)
 
     for ((_, creep) in Game.creeps) {
-        val role = roles[creep.memory.role] as IRole?
+        val role = creep.memory.role
         try {
             role?.loop(creep)
         } catch (e: Throwable) {

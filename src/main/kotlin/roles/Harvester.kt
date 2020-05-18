@@ -38,7 +38,6 @@ object Harvester : IRole {
         if (creep.store.getUsedCapacity() == 0) {
             creep.memory.setGathering()
             creep.memory.target = null
-            creep.info("Gathering", true)
         }
 
         // Full "belly"
@@ -46,7 +45,6 @@ object Harvester : IRole {
             // change our state to hauling
             creep.memory.setDepositing()
             creep.memory.target = creep.room.findBestSpawn().id
-            creep.info("depositing", true)
         }
 
         if (creep.memory.isDepositing) {

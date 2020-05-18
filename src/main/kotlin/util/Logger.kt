@@ -5,7 +5,7 @@ private enum class LogType {
 }
 
 private fun log(type: LogType, message: String, subject: String? = null) {
-    val tag = if (subject != null) "[$subject/${type.name}]" else "[${type.name}]:"
+    val tag = if (subject != null) "[${type.name}/$subject]" else "[${type.name}]:"
     val color = when(type) {
         LogType.DEBUG -> "#efefef"
         LogType.INFO -> "#ffffff"
@@ -13,7 +13,7 @@ private fun log(type: LogType, message: String, subject: String? = null) {
         LogType.ERROR -> "#b20d00"
     }
 
-    console.log(tag, "color: $color", " $message")
+    console.log("<span style=\"color: $color\">$tag</span> $message")
 }
 
 fun debug(message: String, subject: String? = null) {

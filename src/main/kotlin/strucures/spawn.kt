@@ -40,7 +40,7 @@ fun runSpawnLogic(room: Room) {
  * @return if the spawn was successful
  */
 private fun StructureSpawn.handleSpawn(role: IRole, budget: Int): Boolean {
-    val parts = role.spawn(budget)?: return false
+    val parts = role.getSpawnParts(budget)?: return false
     val roomName = room.name
     val creepMemory = jsObject<CreepMemory> {
         this.role = role
@@ -51,7 +51,7 @@ private fun StructureSpawn.handleSpawn(role: IRole, budget: Int): Boolean {
         memory = creepMemory
     })
 
-    if (status == OK) role.onSpawn(room, creepMemory)
+    if (status == OK) role.onSpawning(room, creepMemory)
 
     return status == OK
 }

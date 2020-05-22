@@ -9,7 +9,7 @@ private fun log(type: LogType, message: String, subject: String? = null) {
     val color = when(type) {
         LogType.DEBUG -> "#efefef"
         LogType.INFO -> "#ffffff"
-        LogType.WARN -> "#FFFACD"
+        LogType.WARN -> "#fffacd"
         LogType.ERROR -> "#b20d00"
     }
 

@@ -1,44 +1,19 @@
 package roles
 
+import ext.error
 import ext.findBestSpawn
-import ext.info
-import memory.SourceAssignment
-import memory.homeRoom
-import memory.isDepositing
-import memory.isGathering
-import memory.room
-import memory.setDepositing
-import memory.setGathering
-import memory.source
-import memory.sources
-import memory.target
-import screeps.api.BodyPartConstant
-import screeps.api.CARRY
-import screeps.api.CONTROLLER_DOWNGRADE
-import screeps.api.Creep
-import screeps.api.ERR_NOT_IN_RANGE
-import screeps.api.FIND_MY_SPAWNS
-import screeps.api.FIND_SOURCES
-import screeps.api.Game
-import screeps.api.LOOK_CONSTRUCTION_SITES
-import screeps.api.LOOK_STRUCTURES
-import screeps.api.MOVE
-import screeps.api.Memory
-import screeps.api.PathFinder
-import screeps.api.RESOURCE_ENERGY
-import screeps.api.RoomPosition
-import screeps.api.STRUCTURE_CONTAINER
-import screeps.api.Source
-import screeps.api.WORK
-import screeps.api.get
+import ext.warn
+import memory.*
+import screeps.api.*
 import screeps.api.structures.StructureContainer
-import screeps.api.structures.StructureSpawn
-import screeps.utils.unsafe.jsObject
+import screeps.utils.memory.memory
 
 object Harvester : IRole {
     override val name = "harvester"
+    private var CreepMemory.isHarvesting by memory { false }
 
-    override fun spawn(budget: Int): Array<BodyPartConstant>? {
+
+    override fun getSpawnParts(budget: Int): Array<BodyPartConstant>? {
         return when {
             budget >= 300 -> arrayOf(WORK, CARRY, CARRY, MOVE, MOVE) // 300
             else -> arrayOf(WORK, CARRY, MOVE) // 200
@@ -46,76 +21,46 @@ object Harvester : IRole {
     }
 
     override fun loop(creep: Creep) {
-        val source = creep.getSource() ?: return
+        val sourceAssignment = creep.room.getOrAssignSource(creep) ?: return
+        val source = Game.getObjectById<Source>(sourceAssignment.id)!!
+        // TODO: check to make sure actually exists
 
-        if (creep.room.controller!!.ticksToDowngrade < CONTROLLER_DOWNGRADE[creep.room.controller!!.level]!!/1.5  ) {
-            onPrimitiveMode(creep)
+        if (creep.homeRoomMemory.primitiveHarvesters) {
+            handlePrimitiveMode(creep, source)
+
             return
         }
 
         if(handleContainer(creep, source)) return
-        onPrimitiveMode(creep)
 
-        //val primitiveMode = true
-        // (primitiveMode) onPrimitiveMode(creep)
+        when (val status = creep.harvest(source)) {
+            OK, ERR_NOT_ENOUGH_RESOURCES -> return
+            ERR_NOT_IN_RANGE -> {
+                creep.warn("Having to move to assigned source to harvest", true)
+                creep.moveTo(source)
+            } else -> {
+                creep.error("Failed to harvest from assigned source: '$status'", true)
+            }
+        }
     }
 
-    private fun onPrimitiveMode(creep: Creep) {
-        // Empty "belly"
-        if (creep.store.getUsedCapacity() == 0) {
-            creep.memory.setGathering()
-            creep.memory.target = null
-        }
+    private fun handlePrimitiveMode(creep: Creep, source: Source) {
+        // Store is full
+        if (creep.store.getFreeCapacity() <= 0)
+            creep.memory.isHarvesting = false
 
-        // Full "belly"
-        if (creep.store.getFreeCapacity() == 0) {
-            // change our state to hauling
-            creep.memory.setDepositing()
-            creep.memory.target = creep.room.findBestSpawn().id
-        }
+        // Store is empty
+        if (creep.store.getUsedCapacity() <= 0)
+            creep.memory.isHarvesting = true
 
-        if (creep.memory.isDepositing) {
-            val spawn = Game.getObjectById<StructureSpawn>(creep.memory.target)!!
+        if (creep.memory.isHarvesting) {
+            if (creep.harvest(source) == ERR_NOT_IN_RANGE) creep.moveTo(source)
+        } else {
+            val spawn = creep.room.findBestSpawn()
             if (creep.transfer(spawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(spawn)
             }
         }
-
-        if (creep.memory.isGathering) {
-            val source = creep.getSource() ?: return
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source)
-            }
-        }
-    }
-
-    private fun Creep.getAssignment() = Memory.rooms[memory.room]?.sources?.firstOrNull { it.harvester == id }
-    private fun Source.getAssignment() = room.memory.sources?.firstOrNull { it.id == id }
-
-    private fun Creep.getSource(): Source? {
-        if (memory.source != null) {
-            return Game.getObjectById(memory.source)
-        }
-
-        // Assign source
-        if (room.memory.sources == null) {
-            println("Room '${room.name}' sources: ${room.memory.sources}")
-            room.memory.sources = room.find(FIND_SOURCES)
-                    .map { jsObject<SourceAssignment> { id = it.id } }
-                    .toTypedArray()
-        }
-
-        val assignment = room.memory.sources!!.find { it.harvester == null }
-
-        if (assignment == null) {
-            println("Failed to find assignment for $name")
-            return null
-        }
-
-        assignment.harvester = name
-        memory.source = assignment.id
-        this.info("I've been assigned to '$id'", true)
-        return Game.getObjectById(memory.source)
     }
 
     /**
@@ -125,12 +70,12 @@ object Harvester : IRole {
     private fun handleContainer(creep: Creep, source: Source): Boolean {
         if (creep.store.getUsedCapacity() < 25) return false
 
-        val assignment = source.getAssignment() ?: return false
+        val assignment = creep.room.getOrAssignSource(creep) ?: return false
         if (assignment.container == null) {
             var pos = assignment.containerPos
             if (pos == null) {
                 // We have never placed a container for this source. The ID is produced on the following tick
-                createContainerSite(creep, source)
+                createContainerSite(creep.room, source, assignment)
                 return false
             }
 
@@ -182,16 +127,15 @@ object Harvester : IRole {
     /**
      * Create a container construction site.
      */
-    private fun createContainerSite(creep: Creep, source: Source) {
-        val assignment = source.getAssignment() ?: return
-        var pos = assignment.containerPos?.apply { RoomPosition(x, y, roomName) }
-        if (pos == null) {
-            val path = PathFinder.search(creep.homeRoom!!.find(FIND_MY_SPAWNS).first().pos, source.pos)
-            pos = path.path.last()
-            assignment.containerPos = pos
+    private fun createContainerSite(room: Room, source: Source, assignment: SourceAssignment) {
+        var position = assignment.containerPos?.apply { RoomPosition(x, y, roomName) }
+        if (position == null) {
+            val path = PathFinder.search(room.find(FIND_MY_SPAWNS).first().pos, source.pos)
+            position = path.path.last()
+            assignment.containerPos = position
         }
-        println("Creating container at $pos")
-        pos.createConstructionSite(STRUCTURE_CONTAINER)
-    }
 
+        util.info("Creating container at $position")
+        position.createConstructionSite(STRUCTURE_CONTAINER)
+    }
  }

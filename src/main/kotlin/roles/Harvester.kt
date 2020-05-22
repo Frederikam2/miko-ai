@@ -3,6 +3,7 @@ package roles
 import ext.findBestSpawn
 import ext.homeRoom
 import ext.homeRoomMemory
+import ext.info
 import memory.SourceAssignment
 import memory.isDepositing
 import memory.isGathering
@@ -97,13 +98,11 @@ object Harvester : IRole {
 
         // Assign source
         if (room.memory.sources == null) {
-            println(room.memory.sources)
+            println("Room '${room.name}' sources: ${room.memory.sources}")
             room.memory.sources = room.find(FIND_SOURCES)
                     .map { jsObject<SourceAssignment> { id = it.id } }
                     .toTypedArray()
         }
-
-        println(JSON.stringify(room.memory.sources))
 
         val assignment = room.memory.sources!!.find { it.harvester == null }
 
@@ -114,7 +113,7 @@ object Harvester : IRole {
 
         assignment.harvester = name
         memory.source = assignment.id
-        println("Assigned $name to source $id in $room")
+        this.info("I've been assigned to '$id'", true)
         return Game.getObjectById(memory.source)
     }
 

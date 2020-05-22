@@ -7,9 +7,6 @@ import screeps.api.Room
 import screeps.api.RoomMemory
 import screeps.api.get
 
-val Creep.homeRoom get(): Room? = Game.rooms[memory.room]
-val Creep.homeRoomMemory get(): RoomMemory? = Memory.rooms[memory.room]
-
 fun Creep.info(message: String, say: Boolean = false) {
     if (say) this.say(message)
     util.info(message, this.name)

@@ -43,7 +43,7 @@ private fun StructureSpawn.handleSpawn(role: IRole, budget: Int): Boolean {
     val parts = role.spawn(budget)?: return false
     val roomName = room.name
     val creepMemory = jsObject<CreepMemory> {
-        this.role = role.name
+        this.role = role
         this.role = role
         this.room = roomName
     }

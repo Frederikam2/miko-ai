@@ -3,9 +3,9 @@ package memory
 import roles.IRole
 import screeps.api.Creep
 import screeps.api.CreepMemory
-import screeps.api.RoomPosition
 import screeps.api.Game
 import screeps.api.Room
+import screeps.api.RoomPosition
 import screeps.api.get
 import screeps.utils.memory.memory
 import screeps.utils.memory.memoryWithSerializer

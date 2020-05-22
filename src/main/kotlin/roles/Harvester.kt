@@ -1,12 +1,12 @@
 package roles
 
 import ext.findBestSpawn
-import ext.homeRoom
-import ext.homeRoomMemory
 import ext.info
 import memory.SourceAssignment
+import memory.homeRoom
 import memory.isDepositing
 import memory.isGathering
+import memory.room
 import memory.setDepositing
 import memory.setGathering
 import memory.source
@@ -23,6 +23,7 @@ import screeps.api.Game
 import screeps.api.LOOK_CONSTRUCTION_SITES
 import screeps.api.LOOK_STRUCTURES
 import screeps.api.MOVE
+import screeps.api.Memory
 import screeps.api.PathFinder
 import screeps.api.RESOURCE_ENERGY
 import screeps.api.RoomPosition
@@ -88,7 +89,7 @@ object Harvester : IRole {
         }
     }
 
-    private fun Creep.getAssignment() = homeRoomMemory?.sources?.firstOrNull { it.harvester == id }
+    private fun Creep.getAssignment() = Memory.rooms[memory.room]?.sources?.firstOrNull { it.harvester == id }
     private fun Source.getAssignment() = room.memory.sources?.firstOrNull { it.id == id }
 
     private fun Creep.getSource(): Source? {

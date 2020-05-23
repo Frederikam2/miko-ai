@@ -45,3 +45,11 @@ fun ScreepsReturnCode.expectOk(creep: Creep, action: String?) {
         creep.warn("unexpected code while $action: $this")
     }
 }
+
+fun ScreepsReturnCode.unexpected(creep: Creep, action: String?) {
+    if (action == null) {
+        creep.warn("Unexpected code: $this")
+    } else {
+        creep.warn("unexpected code while $action: $this")
+    }
+}

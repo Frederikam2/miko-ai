@@ -1,10 +1,12 @@
 package roles
 
+import ext.findBestSpawn
 import ext.warn
 import memory.*
 import screeps.api.*
 import screeps.utils.memory.memory
 import util.expectOk
+import util.unexpected
 import kotlin.math.max
 
 object Hauler : IRole {
@@ -76,6 +78,17 @@ object Hauler : IRole {
     }
 
     private fun deliver(creep: Creep) {
-        // TODO
+        // TODO: Deliver to spawn room
+        // TODO: Deliver to other structures than spawn
+
+        val spawn = creep.room.findBestSpawn()
+        if (creep.pos.isNearTo(spawn)) {
+            when(val status = creep.transfer(spawn, RESOURCE_ENERGY)) {
+                OK, ERR_FULL -> Unit
+                else -> status.unexpected(creep, "delivering energy")
+            }
+        } else {
+            creep.moveTo(spawn).expectOk(creep, "moving")
+        }
     }
 }

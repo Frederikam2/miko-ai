@@ -16,6 +16,7 @@ import screeps.utils.contains
 import screeps.utils.isEmpty
 import screeps.utils.unsafe.delete
 import strucures.runSpawnLogic
+import util.TickData
 
 /**
  * Called by Screeps
@@ -24,6 +25,7 @@ import strucures.runSpawnLogic
 fun loop() {
     //delete memories of creeps that have passed away
     houseKeeping(Game.creeps)
+    TickData.refresh()
 
     for ((_, creep) in Game.creeps) {
         val role = creep.memory.role

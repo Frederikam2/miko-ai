@@ -8,18 +8,16 @@ import roles.Hauler
 import roles.IRole
 import roles.Upgrader
 import screeps.api.CreepMemory
-import screeps.api.FIND_MY_CREEPS
 import screeps.api.FIND_MY_SPAWNS
 import screeps.api.FIND_SOURCES
 import screeps.api.OK
 import screeps.api.Room
 import screeps.api.structures.StructureSpawn
 import screeps.utils.unsafe.jsObject
-
-val Room.myCreeps get() = find(FIND_MY_CREEPS)
+import util.TickData
 
 fun runSpawnLogic(room: Room) {
-    val creeps = room.myCreeps
+    val creeps = TickData.creepsByHome[room.name] ?: emptyList()
     val spawn = room.find(FIND_MY_SPAWNS).firstOrNull() { it.spawning == null }
     spawn ?: return
 

@@ -8,6 +8,7 @@ import screeps.api.Room
 val roles: dynamic = object {
     val upgrader = Upgrader
     val harvester = Harvester
+    val hauler = Hauler
 }
 
 interface IRole {

@@ -12,8 +12,6 @@ import screeps.api.component1
 import screeps.api.component2
 import screeps.api.get
 import screeps.api.iterator
-import screeps.api.structures.StructureSpawn
-import screeps.api.values
 import screeps.utils.contains
 import screeps.utils.isEmpty
 import screeps.utils.unsafe.delete
@@ -24,15 +22,13 @@ import strucures.runSpawnLogic
  */
 @Suppress("unused")
 fun loop() {
-    val mainSpawn: StructureSpawn = Game.spawns.values.firstOrNull() ?: return
-
     //delete memories of creeps that have passed away
     houseKeeping(Game.creeps)
 
     for ((_, creep) in Game.creeps) {
         val role = creep.memory.role
         try {
-            role?.loop(creep)
+            role.loop(creep)
         } catch (e: Throwable) {
             println("${creep.name}: $e")
         }
@@ -64,6 +60,9 @@ private fun houseKeeping(creeps: Record<String, Creep>) {
         val sources = room.memory.sources ?: continue
         sources.forEach {
             if (!Game.creeps.contains(it.harvester ?: "")) {
+                it.harvester = null
+            }
+            if (!Game.creeps.contains(it.hauler ?: "")) {
                 it.harvester = null
             }
         }

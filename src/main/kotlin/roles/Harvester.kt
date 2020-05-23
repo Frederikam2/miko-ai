@@ -31,14 +31,15 @@ object Harvester : IRole {
             return
         }
 
-        if(handleContainer(creep, source)) return
+        if (handleContainer(creep, source)) return
 
         when (val status = creep.harvest(source)) {
             OK, ERR_NOT_ENOUGH_RESOURCES -> return
             ERR_NOT_IN_RANGE -> {
                 creep.warn("Having to move to assigned source to harvest", true)
                 creep.moveTo(source)
-            } else -> {
+            }
+            else -> {
                 creep.error("Failed to harvest from assigned source: '$status'", true)
             }
         }
@@ -135,7 +136,7 @@ object Harvester : IRole {
      * Create a container construction site.
      */
     private fun createContainerSite(room: Room, source: Source, assignment: SourceAssignment) {
-        var position = assignment.containerPos?.apply { RoomPosition(x, y, roomName) }
+        var position = assignment.containerPos
         if (position == null) {
             val path = PathFinder.search(room.find(FIND_MY_SPAWNS).first().pos, source.pos)
             position = path.path.last()
@@ -145,4 +146,4 @@ object Harvester : IRole {
         util.info("Creating container at $position")
         position.createConstructionSite(STRUCTURE_CONTAINER)
     }
- }
+}

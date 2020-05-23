@@ -16,8 +16,10 @@ external object SourceAssignment {
     var harvester: String?
     var hauler: String?
     var container: String?
-    var containerPos: RoomPosition?
 }
+
+// Note: No delegates on member properties on external objects
+var SourceAssignment.containerPos: RoomPosition? by roomPosition()
 
 var RoomMemory.primitiveHarvesters by memory { false }
 var RoomMemory.sources by memory<Array<SourceAssignment>>()
@@ -43,8 +45,8 @@ fun Room.getOrAssignSource(creep: Creep): SourceAssignment? {
     if (memory.sources == null) {
         util.info("Room '${name}' sources: ${memory.sources}")
         memory.sources = find(FIND_SOURCES)
-                .map { jsObject<SourceAssignment> { id = it.id } }
-                .toTypedArray()
+            .map { jsObject<SourceAssignment> { id = it.id } }
+            .toTypedArray()
     }
 
     val role = creep.memory.role
@@ -66,7 +68,7 @@ fun Room.getOrAssignSource(creep: Creep): SourceAssignment? {
         return null
     }
 
-    when(role) {
+    when (role) {
         Harvester -> assignment!!.harvester = creep.name
         Hauler -> assignment!!.hauler = creep.name
     }

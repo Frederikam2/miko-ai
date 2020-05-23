@@ -1,5 +1,10 @@
 package util
 
+import ext.warn
+import screeps.api.Creep
+import screeps.api.OK
+import screeps.api.ScreepsReturnCode
+
 private enum class LogType {
     DEBUG, INFO, WARN, ERROR
 }
@@ -30,4 +35,13 @@ fun warn(message: String, subject: String? = null) {
 
 fun error(message: String, subject: String? = null) {
     log(LogType.ERROR, message, subject)
+}
+
+fun ScreepsReturnCode.expectOk(creep: Creep, action: String?) {
+    if (this == OK) return
+    if (action == null) {
+        creep.warn("Unexpected code: $this")
+    } else {
+        creep.warn("unexpected code while $action: $this")
+    }
 }

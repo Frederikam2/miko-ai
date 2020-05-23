@@ -1,8 +1,10 @@
 package roles
 
-import memory.room
+import ext.warn
+import memory.*
 import screeps.api.*
 import screeps.utils.memory.memory
+import util.expectOk
 import kotlin.math.max
 
 object Hauler : IRole {
@@ -30,12 +32,47 @@ object Hauler : IRole {
     }
 
     private fun gather(creep: Creep) {
-        if (creep.room.name != creep.memory.room) {
-            creep.moveTo(RoomPosition(25, 25, creep.room.name))
+        var assignment = creep.homeRoomMemory.getExistingAssignment(creep)
+
+        if (assignment == null) {
+            val homeRoom = creep.homeRoom
+            if (homeRoom == null) {
+                // If we have no assignment, and we are not at home, move there so we can get visibility
+                creep.moveTo(RoomPosition(25, 25, creep.room.name))
+                return
+            } else {
+                // Assign a new SourceAssignment
+                assignment = homeRoom.getOrAssignSource(creep)
+            }
+        }
+
+        assignment ?: return
+        val containerPos = assignment.containerPos
+
+        if (containerPos == null) {
+            creep.warn("No container position", true)
             return
         }
 
-        // TODO
+        if(!creep.pos.isNearTo(containerPos)) {
+            creep.moveTo(containerPos)
+            return
+        }
+
+        val container = assignment.containerStruct
+
+        if (container != null) {
+            creep.withdraw(container, RESOURCE_ENERGY).expectOk(creep, "withdrawing from container")
+            return
+        }
+
+        val dropped = containerPos.lookFor(LOOK_ENERGY)?.firstOrNull()
+        if (dropped == null) {
+            creep.say("Zzz")
+            return
+        }
+
+        creep.pickup(dropped).expectOk(creep, "picking up")
     }
 
     private fun deliver(creep: Creep) {

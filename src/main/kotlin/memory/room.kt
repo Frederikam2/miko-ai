@@ -4,6 +4,7 @@ import ext.warn
 import roles.Harvester
 import roles.Hauler
 import screeps.api.*
+import screeps.api.structures.StructureContainer
 import screeps.utils.memory.memory
 import screeps.utils.unsafe.jsObject
 
@@ -16,6 +17,9 @@ external object SourceAssignment {
 
 // Note: No delegates on member properties on external objects
 var SourceAssignment.containerPos: RoomPosition? by roomPosition()
+
+val SourceAssignment.containerStruct: StructureContainer?
+    get() = Game.getObjectById<Identifiable>(container) as? StructureContainer
 
 var RoomMemory.primitiveHarvesters by memory { false }
 var RoomMemory.sources by memory<Array<SourceAssignment>>()

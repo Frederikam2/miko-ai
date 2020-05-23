@@ -35,6 +35,7 @@ fun Room.getOrAssignSource(creep: Creep): SourceAssignment? {
         creep.warn("Failed to find assignment in room '$name'", true)
         return null
     }
+    assignment!!.harvester = creep.name
 
     return assignment
 }

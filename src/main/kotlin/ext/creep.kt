@@ -13,12 +13,12 @@ fun Creep.info(message: String, say: Boolean = false) {
 }
 
 fun Creep.warn(message: String, say: Boolean = false) {
-    if (say) say("WARN: $message")
+    if (say) say(message)
     util.warn(message, name)
 }
 
 fun Creep.error(message: String, say: Boolean = false) {
-    if (say) say("ERROR: $message")
+    if (say) say(message)
     util.error(message, name)
 }
 

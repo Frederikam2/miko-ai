@@ -57,8 +57,15 @@ object Harvester : IRole {
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) creep.moveTo(source)
         } else {
             val spawn = creep.room.findBestSpawn()
-            if (creep.transfer(spawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(spawn)
+
+            when (creep.transfer(spawn, RESOURCE_ENERGY)) {
+                ERR_FULL -> {
+                    // if spawn full and we have at least 50% free room to carry, go get more energy
+                    val cap = (creep.store.getCapacity() ?: 100).toFloat()
+                    val percentFree = ((creep.store.getFreeCapacity() / cap) * 100)
+                    if (percentFree >= 50) creep.memory.isHarvesting = true
+                }
+                ERR_NOT_IN_RANGE -> creep.moveTo(spawn)
             }
         }
     }

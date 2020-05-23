@@ -1,8 +1,10 @@
 package strucures
 
+import memory.primitiveHarvesters
 import memory.role
 import memory.room
 import roles.Harvester
+import roles.Hauler
 import roles.IRole
 import roles.Upgrader
 import screeps.api.CreepMemory
@@ -22,7 +24,10 @@ fun runSpawnLogic(room: Room) {
     spawn ?: return
 
     val harvesters = creeps.count { it.memory.role == Harvester }
+    val haulers = creeps.count { it.memory.role == Hauler }
     val upgraders = creeps.count { it.memory.role == Upgrader }
+
+    room.memory.primitiveHarvesters = haulers == 0
 
     if (harvesters == 0) {
         spawn.handleSpawn(Harvester, room.energyAvailable)

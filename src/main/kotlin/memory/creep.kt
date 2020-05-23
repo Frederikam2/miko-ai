@@ -10,7 +10,8 @@ var CreepMemory.role: IRole by memoryWithSerializer<IRole>({ throw notInitialise
 var CreepMemory.room by memory<String> { throw notInitialised() }
 
 val Creep.homeRoom get(): Room? = Game.rooms[memory.room]
-val Creep.homeRoomMemory get(): RoomMemory = Memory.rooms[memory.room] ?: throw IllegalStateException("Universe broke :c")
+val Creep.homeRoomMemory
+    get(): RoomMemory = Memory.rooms[memory.room] ?: throw IllegalStateException("Universe broke :c")
 
 fun notInitialised(): IllegalStateException {
     throw IllegalStateException("This memory property must be initialised before being accessed")

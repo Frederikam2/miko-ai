@@ -1,14 +1,7 @@
 package roles
 
 import memory.room
-import screeps.api.BODYPART_COST
-import screeps.api.BodyPartConstant
-import screeps.api.CARRY
-import screeps.api.Creep
-import screeps.api.CreepMemory
-import screeps.api.MOVE
-import screeps.api.RoomPosition
-import screeps.api.get
+import screeps.api.*
 import screeps.utils.memory.memory
 import kotlin.math.max
 

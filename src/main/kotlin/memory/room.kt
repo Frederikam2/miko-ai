@@ -3,11 +3,7 @@ package memory
 import ext.warn
 import roles.Harvester
 import roles.Hauler
-import screeps.api.Creep
-import screeps.api.FIND_SOURCES
-import screeps.api.Room
-import screeps.api.RoomMemory
-import screeps.api.RoomPosition
+import screeps.api.*
 import screeps.utils.memory.memory
 import screeps.utils.unsafe.jsObject
 
@@ -45,8 +41,8 @@ fun Room.getOrAssignSource(creep: Creep): SourceAssignment? {
     if (memory.sources == null) {
         util.info("Room '${name}' sources: ${memory.sources}")
         memory.sources = find(FIND_SOURCES)
-            .map { jsObject<SourceAssignment> { id = it.id } }
-            .toTypedArray()
+                .map { jsObject<SourceAssignment> { id = it.id } }
+                .toTypedArray()
     }
 
     val role = creep.memory.role

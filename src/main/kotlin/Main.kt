@@ -1,17 +1,6 @@
-
-
 import memory.role
 import memory.sources
-import screeps.api.Creep
-import screeps.api.FIND_MY_CREEPS
-import screeps.api.Game
-import screeps.api.Memory
-import screeps.api.Record
-import screeps.api.Room
-import screeps.api.component1
-import screeps.api.component2
-import screeps.api.get
-import screeps.api.iterator
+import screeps.api.*
 import screeps.utils.contains
 import screeps.utils.isEmpty
 import screeps.utils.unsafe.delete
@@ -58,7 +47,7 @@ private fun houseKeeping(creeps: Record<String, Creep>) {
         }
     }
 
-    for((_, room) in Game.rooms) {
+    for ((_, room) in Game.rooms) {
         val sources = room.memory.sources ?: continue
         sources.forEach {
             if (!Game.creeps.contains(it.harvester ?: "")) {

@@ -39,11 +39,7 @@ fun error(message: String, subject: String? = null) {
 
 fun ScreepsReturnCode.expectOk(creep: Creep, action: String?) {
     if (this == OK) return
-    if (action == null) {
-        creep.warn("Unexpected code: $this")
-    } else {
-        creep.warn("unexpected code while $action: $this")
-    }
+    unexpected(creep, action)
 }
 
 fun ScreepsReturnCode.unexpected(creep: Creep, action: String?) {

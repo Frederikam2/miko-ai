@@ -24,5 +24,5 @@ interface IRole {
      */
     fun onSpawning(room: Room, memory: CreepMemory) {}
 
-    fun loop(creep: Creep)
+    fun run(creep: Creep)
 }

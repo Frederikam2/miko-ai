@@ -1,12 +1,12 @@
 package roles
 
+import ext.expectOk
 import ext.findBestSpawn
+import ext.unexpected
 import ext.warn
 import memory.*
 import screeps.api.*
 import screeps.utils.memory.memory
-import util.expectOk
-import util.unexpected
 import kotlin.math.max
 
 object Hauler : IRole {
@@ -25,7 +25,7 @@ object Hauler : IRole {
         return parts.toTypedArray()
     }
 
-    override fun loop(creep: Creep) {
+    override fun run(creep: Creep) {
         if (creep.store.getFreeCapacity() <= 0) creep.memory.isGathering = false
         else if (creep.store.getUsedCapacity() <= 0) creep.memory.isGathering = true
 

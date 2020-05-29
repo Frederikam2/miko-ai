@@ -7,18 +7,18 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 private fun RoomPosition.serialise() = "$x:$y:$roomName"
-private fun deserialiseRoom(str: String): RoomPosition {
+private fun deserializeRoom(str: String): RoomPosition {
     val (x, y, room) = str.split(':')
     return RoomPosition(x.toInt(), y.toInt(), room)
 }
 
 fun memoryPositionDelegate(): ReadWriteProperty<MemoryMarker, RoomPosition?> {
     @Suppress("RemoveExplicitTypeArguments")
-    return MemoryMappingDelegate<RoomPosition?>({ null }, { it!!.serialise() }, ::deserialiseRoom)
+    return MemoryMappingDelegate<RoomPosition?>({ null }, { it!!.serialise() }, ::deserializeRoom)
 }
 
 fun memoryPositionDelegate(default: () -> RoomPosition): ReadWriteProperty<MemoryMarker, RoomPosition> =
-        MemoryMappingDelegate(default, RoomPosition::serialise, ::deserialiseRoom)
+        MemoryMappingDelegate(default, RoomPosition::serialise, ::deserializeRoom)
 
 fun roomPosition() = RoomPositionDelegate()
 
@@ -26,7 +26,7 @@ fun roomPosition() = RoomPositionDelegate()
 class RoomPositionDelegate : ReadWriteProperty<dynamic, RoomPosition?> {
     override fun getValue(thisRef: dynamic, property: KProperty<*>): RoomPosition? {
         val backing = thisRef[property.name] as? String ?: return null
-        return deserialiseRoom(backing)
+        return deserializeRoom(backing)
     }
 
     override fun setValue(thisRef: dynamic, property: KProperty<*>, value: RoomPosition?) {

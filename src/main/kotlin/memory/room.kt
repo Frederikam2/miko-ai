@@ -7,6 +7,7 @@ import screeps.api.*
 import screeps.api.structures.StructureContainer
 import screeps.utils.memory.memory
 import screeps.utils.unsafe.jsObject
+import util.Logger
 
 external object SourceAssignment {
     var id: String
@@ -43,7 +44,7 @@ fun RoomMemory.getExistingAssignment(creep: Creep): SourceAssignment? = when (cr
  */
 fun Room.getOrAssignSource(creep: Creep): SourceAssignment? {
     if (memory.sources == null) {
-        util.info("Room '${name}' sources: ${memory.sources}")
+        Logger.info("Room '${name}' sources: ${memory.sources}")
         memory.sources = find(FIND_SOURCES)
                 .map { jsObject<SourceAssignment> { id = it.id } }
                 .toTypedArray()

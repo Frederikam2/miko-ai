@@ -7,6 +7,7 @@ import memory.*
 import screeps.api.*
 import screeps.api.structures.StructureContainer
 import screeps.utils.memory.memory
+import util.Logger
 
 object Harvester : IRole {
     override val name = "harvester"
@@ -20,7 +21,7 @@ object Harvester : IRole {
         }
     }
 
-    override fun loop(creep: Creep) {
+    override fun run(creep: Creep) {
         val sourceAssignment = creep.room.getOrAssignSource(creep) ?: return
         val source = Game.getObjectById<Source>(sourceAssignment.id)!!
         // TODO: check to make sure actually exists
@@ -143,7 +144,7 @@ object Harvester : IRole {
             assignment.containerPos = position
         }
 
-        util.info("Creating container at $position")
+        Logger.info("Creating container at $position")
         position.createConstructionSite(STRUCTURE_CONTAINER)
     }
 }

@@ -12,7 +12,7 @@ object Upgrader : IRole {
         return arrayOf(WORK, CARRY, MOVE)
     }
 
-    override fun loop(creep: Creep) {
+    override fun run(creep: Creep) {
         if (creep.store.getFreeCapacity() <= 0)
             creep.memory.isUpgrading = true
 

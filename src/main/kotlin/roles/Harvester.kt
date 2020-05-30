@@ -32,7 +32,7 @@ object Harvester : IRole {
         if (handleContainer(creep, source)) return
 
         when (val status = creep.harvest(source)) {
-            OK, ERR_NOT_ENOUGH_RESOURCES -> return
+            OK, ERR_NOT_ENOUGH_RESOURCES, ERR_BUSY -> Unit
             ERR_NOT_IN_RANGE -> creep.moveTo(source)
             else -> {
                 creep.error("Failed to harvest from assigned source: '$status'", true)
@@ -45,7 +45,11 @@ object Harvester : IRole {
         if (creep.store.isEmpty()) creep.memory.isHarvesting = true
 
         if (creep.memory.isHarvesting) {
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE) creep.moveTo(source)
+            when (val status = creep.harvest(source)) {
+                OK, ERR_NOT_ENOUGH_RESOURCES -> Unit
+                ERR_NOT_IN_RANGE -> creep.moveTo(source)
+                else -> status.unexpected(creep, "harvesting resources")
+            }
         } else {
             val spawn = creep.room.findBestSpawn()
 

@@ -16,6 +16,7 @@ object Builder : IRole {
 
     override fun getSpawnParts(budget: Int): Array<BodyPartConstant>? {
         return when {
+
             else -> arrayOf(WORK, CARRY, MOVE) // 200
         }
     }
@@ -60,18 +61,19 @@ object Builder : IRole {
 
             var repairTarget = Game.getObjectById<Structure>(creep.memory.target)
             if (repairTarget == null) {
-                repairTarget = (homeRoom.find(FIND_STRUCTURES)
-                        .filter { it.structureType == STRUCTURE_CONTAINER })
+                repairTarget = homeRoom.find(FIND_STRUCTURES)
+                        .filter { it.structureType == STRUCTURE_CONTAINER }
                         .filter { it.hitsMax - it.hits != 0 }
                         .maxBy { it.hitsMax - it.hits }
+
+                if (repairTarget != null) creep.memory.target = repairTarget.id
             }
 
             if (repairTarget == null) {
-                creep.info("Nothing todo", true)
+                creep.warn("No build or repair targets available")
+
                 return
             }
-
-            creep.memory.target = repairTarget.id
 
             when (val status = creep.repair(repairTarget)) {
                 OK -> Unit

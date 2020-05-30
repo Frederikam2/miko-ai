@@ -28,7 +28,7 @@ fun primitiveHarvestersBehavior(creep: Creep, dumpEnergy: Boolean = false): Bool
 }
 
 fun limitedHaulersBehavior(creep: Creep, dumpEnergy: Boolean = false): Boolean {
-    if (creep.homeRoomMemory.limitedHaulers) return false
+    if (!creep.homeRoomMemory.limitedHaulers) return false
     if (dumpEnergy) dumpEnergySpawn(creep)
 
     return true

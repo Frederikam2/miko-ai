@@ -5,6 +5,7 @@ import roles.*
 import screeps.api.*
 import screeps.api.structures.StructureSpawn
 import screeps.utils.unsafe.jsObject
+import util.Logger
 import util.TickData
 
 object Spawn {
@@ -22,7 +23,12 @@ object Spawn {
         val sourcesSize = room.find(FIND_SOURCES).size
 
         room.memory.noHarvesters = harvesters == 0
+        room.memory.limitedHaulers = haulers < sourcesSize
+        val primLast = room.memory.primitiveHarvesters
         room.memory.primitiveHarvesters = builders == 0 || haulers < sourcesSize
+
+        if (primLast != room.memory.primitiveHarvesters)
+            Logger.info("primitiveHarvesters transition to '${room.memory.primitiveHarvesters}'", "room/${room.name}")
 
         // primitive room spawning, X = number of sources in room
         // Priority: X Harvesters, 1 Upgrader, X Builders, X Haulers

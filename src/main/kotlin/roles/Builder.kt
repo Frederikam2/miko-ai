@@ -1,10 +1,7 @@
 package roles
 
 import ext.*
-import memory.homeRoom
-import memory.homeRoomMemory
-import memory.noHarvesters
-import memory.notInitialised
+import memory.*
 import screeps.api.*
 import screeps.api.structures.Structure
 import screeps.api.structures.StructureContainer
@@ -13,6 +10,9 @@ import screeps.api.structures.StructureStorage
 import screeps.utils.isNotEmpty
 import screeps.utils.memory.memory
 import screeps.utils.memory.memoryWithSerializer
+import util.limitedHaulersBehavior
+import util.noHarvestersBehavior
+import util.primitiveHarvestersBehavior
 
 object Builder : IRole {
     override val name = "builder"
@@ -29,14 +29,10 @@ object Builder : IRole {
         if (creep.store.isFull()) creep.memory.isBuilding = true
         if (creep.store.isEmpty()) creep.memory.isBuilding = false
 
-        // No Harvesters: Behavior override
-        if (creep.homeRoomMemory.noHarvesters && !creep.store.isEmpty()) {
-            val spawn = creep.homeRoom?.findBestSpawn()
-            if (spawn !== null) {
-                if (creep.transfer(spawn, RESOURCE_ENERGY) != OK)
-                    creep.moveTo(spawn)
-            }
-        }
+        // handle room behaviors
+        if (noHarvestersBehavior(creep, true)) return
+        if (primitiveHarvestersBehavior(creep, true)) return
+        if (limitedHaulersBehavior(creep, true)) return
 
         val homeRoom = creep.homeRoom
         if (homeRoom == null) {
@@ -73,7 +69,7 @@ object Builder : IRole {
             when (val status = creep.repair(repair)) {
                 OK -> Unit
                 ERR_NOT_IN_RANGE -> creep.moveTo(repair)
-                else -> status.unexpected(creep, "repairing structure '${repair}'")
+                else -> status.unexpected(creep, "repairing structure")
             }
         } else {
             val structures = homeRoom.find(FIND_STRUCTURES)
@@ -101,9 +97,9 @@ object Builder : IRole {
             }
 
             when (val status = creep.withdraw(container, RESOURCE_ENERGY)) {
-                OK -> Unit
+                OK, ERR_BUSY -> Unit
                 ERR_NOT_IN_RANGE -> creep.moveTo(container)
-                else -> status.unexpected(creep, "withdrawing energy from '${container}'")
+                else -> status.unexpected(creep, "withdrawing energy from container")
             }
         }
     }

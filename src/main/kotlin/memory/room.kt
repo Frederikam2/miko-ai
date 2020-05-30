@@ -24,6 +24,7 @@ val SourceAssignment.containerStruct: StructureContainer?
 
 var RoomMemory.sources by memory<Array<SourceAssignment>>()
 var RoomMemory.noHarvesters by memory { false }
+var RoomMemory.limitedHaulers by memory { false }
 var RoomMemory.primitiveHarvesters by memory { false }
 
 /**

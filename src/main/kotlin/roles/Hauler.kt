@@ -3,6 +3,7 @@ package roles
 import ext.*
 import memory.*
 import screeps.api.*
+import screeps.api.structures.StructureContainer
 import screeps.utils.memory.memory
 import kotlin.math.max
 
@@ -67,10 +68,12 @@ object Hauler : IRole {
             return
         }
 
-        val container = assignment.containerStruct
-
+        val container = containerPos.lookFor(LOOK_STRUCTURES)!!.firstOrNull { it.structureType == STRUCTURE_CONTAINER } as StructureContainer
         if (container != null) {
-            creep.withdraw(container, RESOURCE_ENERGY).expectOk(creep, "withdrawing from container")
+            when (val status = creep.withdraw(container, RESOURCE_ENERGY)) {
+                OK, ERR_NOT_ENOUGH_RESOURCES -> Unit
+                else -> status.unexpected(creep, "withdrawling from container")
+            }
             return
         }
 

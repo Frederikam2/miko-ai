@@ -33,10 +33,7 @@ object Harvester : IRole {
 
         when (val status = creep.harvest(source)) {
             OK, ERR_NOT_ENOUGH_RESOURCES -> return
-            ERR_NOT_IN_RANGE -> {
-                creep.warn("Having to move to assigned source to harvest", true)
-                creep.moveTo(source)
-            }
+            ERR_NOT_IN_RANGE -> creep.moveTo(source)
             else -> {
                 creep.error("Failed to harvest from assigned source: '$status'", true)
             }
@@ -44,12 +41,8 @@ object Harvester : IRole {
     }
 
     private fun handlePrimitiveMode(creep: Creep, source: Source) {
-        // Store is full
-        if (creep.store.isFull())
-            creep.memory.isHarvesting = false
-
-        if (creep.store.isEmpty())
-            creep.memory.isHarvesting = true
+        if (creep.store.isFull()) creep.memory.isHarvesting = false
+        if (creep.store.isEmpty()) creep.memory.isHarvesting = true
 
         if (creep.memory.isHarvesting) {
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) creep.moveTo(source)
@@ -105,30 +98,15 @@ object Harvester : IRole {
             }
         }
 
-        return false
+        // Make sure to stand on top of container
+        val container = Game.getObjectById<StructureContainer>(assignment.container)
+        if (container != null && creep.pos != container.pos) {
+            creep.moveTo(container.pos)
 
-//        val site = Game.constructionSites[assignment.container!!]
-//        if (site != null) {
-//            if (creep.build(site) == ERR_NOT_IN_RANGE) {
-//                creep.moveTo(site)
-//            }
-//            return true
-//        }
-//
-//        // Check if the container needs repair, if it exists
-//        val container = Game.getObjectById<StructureContainer>(assignment.container)
-//        return if (container != null) {
-//            if (container.hitsMax - container.hits > 100) {
-//                if (creep.repair(container) == ERR_NOT_IN_RANGE) {
-//                    creep.moveTo(container)
-//                }
-//                return true
-//            }
-//            return false
-//        } else {
-//            println("Warning: Expected a site or container to be here")
-//            false
-//        }
+            return true
+        }
+
+        return false
     }
 
     /**

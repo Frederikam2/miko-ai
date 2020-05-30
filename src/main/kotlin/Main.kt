@@ -29,6 +29,7 @@ fun loop() {
     TickData.refresh()
 
     for ((_, creep) in Game.creeps) {
+        if (creep.spawning) continue;
         try {
             val role = creep.memory.role
             role.run(creep)

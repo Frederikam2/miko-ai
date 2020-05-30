@@ -106,7 +106,7 @@ object Builder : IRole {
             }
 
             when (val status = creep.withdraw(container, RESOURCE_ENERGY)) {
-                OK, ERR_BUSY -> Unit
+                OK, ERR_NOT_ENOUGH_RESOURCES -> Unit
                 ERR_NOT_IN_RANGE -> creep.moveTo(container)
                 else -> status.unexpected(creep, "withdrawing energy from container")
             }

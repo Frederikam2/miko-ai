@@ -4,12 +4,7 @@ import ext.*
 import memory.*
 import screeps.api.*
 import screeps.api.structures.Structure
-import screeps.api.structures.StructureContainer
-import screeps.api.structures.StructureSpawn
-import screeps.api.structures.StructureStorage
-import screeps.utils.isNotEmpty
 import screeps.utils.memory.memory
-import screeps.utils.memory.memoryWithSerializer
 import util.limitedHaulersBehavior
 import util.noHarvestersBehavior
 import util.primitiveHarvestersBehavior
@@ -17,7 +12,7 @@ import util.primitiveHarvestersBehavior
 object Builder : IRole {
     override val name = "builder"
     private var CreepMemory.isBuilding by memory { false }
-    private var CreepMemory.container by memory<String>{ "" }
+    private var CreepMemory.target by memory{ "" }
 
     override fun getSpawnParts(budget: Int): Array<BodyPartConstant>? {
         return when {
@@ -26,8 +21,15 @@ object Builder : IRole {
     }
 
     override fun run(creep: Creep) {
-        if (creep.store.isFull()) creep.memory.isBuilding = true
-        if (creep.store.isEmpty()) creep.memory.isBuilding = false
+        if (creep.store.isFull()) {
+            creep.memory.isBuilding = true
+            creep.memory.target = ""
+        }
+
+        if (creep.store.isEmpty()) {
+            creep.memory.isBuilding = false
+            creep.memory.target = ""
+        }
 
         // handle room behaviors
         if (noHarvestersBehavior(creep, true)) return
@@ -56,25 +58,30 @@ object Builder : IRole {
                 return
             }
 
-            val repair = (homeRoom.find(FIND_STRUCTURES)
-                    .filter { it.structureType == STRUCTURE_CONTAINER })
-                    .filter { it.hitsMax - it.hits != 0 }
-                    .maxBy { it.hitsMax - it.hits }
+            var repairTarget = Game.getObjectById<Structure>(creep.memory.target)
+            if (repairTarget == null) {
+                repairTarget = (homeRoom.find(FIND_STRUCTURES)
+                        .filter { it.structureType == STRUCTURE_CONTAINER })
+                        .filter { it.hitsMax - it.hits != 0 }
+                        .maxBy { it.hitsMax - it.hits }
+            }
 
-            if (repair == null) {
+            if (repairTarget == null) {
                 creep.info("Nothing todo", true)
                 return
             }
 
-            when (val status = creep.repair(repair)) {
+            creep.memory.target = repairTarget.id
+
+            when (val status = creep.repair(repairTarget)) {
                 OK -> Unit
-                ERR_NOT_IN_RANGE -> creep.moveTo(repair)
+                ERR_NOT_IN_RANGE -> creep.moveTo(repairTarget)
                 else -> status.unexpected(creep, "repairing structure")
             }
         } else {
-            val structures = homeRoom.find(FIND_STRUCTURES)
+//            val structures = homeRoom.find(FIND_STRUCTURES)
 
-            var container: StoreOwner? = Game.getObjectById<StoreOwner>(creep.memory.container)
+            var container: StoreOwner? = Game.getObjectById<StoreOwner>(creep.memory.target)
             if (container == null) {
                 // default to spawn
                 container = homeRoom.findBestSpawn()

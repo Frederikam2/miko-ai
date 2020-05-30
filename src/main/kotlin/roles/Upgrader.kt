@@ -3,10 +3,6 @@ package roles
 import ext.findBestSpawn
 import ext.isEmpty
 import ext.isFull
-import memory.homeRoom
-import memory.homeRoomMemory
-import memory.limitedHaulers
-import memory.noHarvesters
 import screeps.api.*
 import screeps.utils.memory.memory
 import util.limitedHaulersBehavior

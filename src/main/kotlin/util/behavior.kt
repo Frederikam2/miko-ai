@@ -4,6 +4,8 @@ import ext.findBestSpawn
 import ext.isEmpty
 import memory.*
 import screeps.api.*
+import screeps.utils.memory.memory
+
 
 fun dumpEnergySpawn(creep: Creep) {
     val spawn = creep.homeRoom?.findBestSpawn()

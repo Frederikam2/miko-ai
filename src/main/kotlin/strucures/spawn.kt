@@ -25,31 +25,32 @@ object Spawn {
         room.memory.noHarvesters = harvesters == 0
         room.memory.limitedHaulers = haulers < sourcesSize
         val primLast = room.memory.primitiveHarvesters
-        room.memory.primitiveHarvesters = builders == 0 || haulers < sourcesSize
+        room.memory.primitiveHarvesters = haulers < sourcesSize
 
         if (primLast != room.memory.primitiveHarvesters)
             Logger.info("primitiveHarvesters transition to '${room.memory.primitiveHarvesters}'", "room/${room.name}")
 
         // primitive room spawning, X = number of sources in room
         // Priority: X Harvesters, 1 Upgrader, X Builders, X Haulers
+        val energyAvailable = room.energyAvailable
         if (harvesters == 0 || harvesters < sourcesSize) {
-            if (spawn.handleSpawn(Harvester, room.energyCapacityAvailable)) return
+            if (spawn.handleSpawn(Harvester, energyAvailable)) return
         } else if (upgraders == 0) {
-            if (spawn.handleSpawn(Upgrader, room.energyCapacityAvailable)) return
-        } else if (builders == 0) {
-            if (spawn.handleSpawn(Builder, room.energyCapacityAvailable)) return
+            if (spawn.handleSpawn(Upgrader, energyAvailable)) return
         } else if (haulers < sourcesSize) {
-            if (spawn.handleSpawn(Hauler, room.energyCapacityAvailable)) return
+            if (spawn.handleSpawn(Hauler, energyAvailable)) return
+        } else if (builders == 0) {
+            if (spawn.handleSpawn(Builder, energyAvailable)) return
         }
 
         // non-primitive spawning
         if (!room.memory.primitiveHarvesters) {
             if (upgraders < 2) {
-                if (spawn.handleSpawn(Upgrader, room.energyCapacityAvailable)) return
+                if (spawn.handleSpawn(Upgrader, energyAvailable)) return
             } else if (haulers < sourcesSize) {
-                if (spawn.handleSpawn(Hauler, room.energyCapacityAvailable)) return
+                if (spawn.handleSpawn(Hauler, energyAvailable)) return
             } else if (builders < sourcesSize) {
-                if (spawn.handleSpawn(Builder, room.energyCapacityAvailable)) return
+                if (spawn.handleSpawn(Builder, energyAvailable)) return
             }
         }
     }

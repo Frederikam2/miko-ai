@@ -5,6 +5,7 @@ import memory.*
 import screeps.api.*
 import screeps.api.structures.StructureContainer
 import screeps.utils.memory.memory
+import util.noHarvestersBehavior
 import kotlin.math.max
 
 object Hauler : IRole {
@@ -27,14 +28,7 @@ object Hauler : IRole {
         if (creep.store.isFull()) creep.memory.isGathering = false
         else if (creep.store.isEmpty()) creep.memory.isGathering = true
 
-        // No Harvesters: Behavior override
-        if (creep.homeRoomMemory.noHarvesters && !creep.store.isEmpty()) {
-            val spawn = creep.homeRoom?.findBestSpawn()
-            if (spawn !== null) {
-                if (creep.transfer(spawn, RESOURCE_ENERGY) != OK)
-                    creep.moveTo(spawn)
-            }
-        }
+        if (noHarvestersBehavior(creep, true)) return
 
         if (creep.memory.isGathering) gather(creep)
         else deliver(creep)

@@ -100,7 +100,7 @@ object Harvester : IRole {
 
         // Make sure to stand on top of container
         val container = Game.getObjectById<StructureContainer>(assignment.container)
-        if (container != null && creep.pos != container.pos) {
+        if (container != null && !creep.pos.isEqualTo(container.pos)) {
             creep.moveTo(container.pos)
 
             return true

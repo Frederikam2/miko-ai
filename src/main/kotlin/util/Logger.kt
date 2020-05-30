@@ -6,7 +6,7 @@ private enum class LogType {
 
 object Logger {
     private fun log(type: LogType, message: String, subject: String? = null) {
-        val tag = if (subject != null) "[${type.name}/$subject]" else "[${type.name}]:"
+        val tag = if (subject != null) "[${type.name}/${subject.toUpperCase()}]" else "[${type.name}]:"
         val color = when (type) {
             LogType.DEBUG -> "#efefef"
             LogType.INFO -> "#ffffff"

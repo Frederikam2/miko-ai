@@ -43,7 +43,6 @@ fun loop() {
                 Spawn.run(room)
             } catch (e: Throwable) {
                 Logger.error("Spawn failure: $e", "room/${room.name}")
-                console.log(e)
             }
         }
     }
@@ -72,12 +71,9 @@ private fun houseKeeping(creeps: Record<String, Creep>) {
     for ((_, room) in Game.rooms) {
         val sources = room.memory.sources ?: continue
         sources.forEach {
-            if (!Game.creeps.contains(it.harvester ?: "")) {
-                it.harvester = null
-            }
-            if (!Game.creeps.contains(it.hauler ?: "")) {
-                it.hauler = null
-            }
+            if (!Game.creeps.contains(it.harvester ?: "")) it.harvester = null
+            if (!Game.creeps.contains(it.hauler ?: "")) it.hauler = null
+            if (Game.structures.contains(it.container ?: "")) it.container = null
         }
     }
 }

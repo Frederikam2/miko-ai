@@ -86,8 +86,6 @@ object Hauler : IRole {
     }
 
     private fun deliver(creep: Creep) {
-        // TODO: Deliver to spawn room
-        // TODO: Deliver to other structures than spawn
         val homeRoom = creep.homeRoom
         if (homeRoom == null) {
             // If we have no assignment, and we are not at home, move there so we can get visibility
@@ -97,8 +95,6 @@ object Hauler : IRole {
 
         var target = Game.getObjectById<StoreOwner>(creep.memory.target)
         if (target == null) {
-            target = creep.room.findBestSpawn()
-
             // handle extensions
             val extensions = homeRoom.find(FIND_MY_STRUCTURES).filter { it.structureType == STRUCTURE_EXTENSION } as List<StructureExtension>
             if (extensions.isNotEmpty()) {
@@ -106,8 +102,23 @@ object Hauler : IRole {
                         .filter { it.store.getFreeCapacity(RESOURCE_ENERGY) > 0 }
                         .maxBy { it.store.getFreeCapacity(RESOURCE_ENERGY) ?: 0 }
 
-                if (extension !== null) target = extension
+                if (extension != null) target = extension
             }
+
+            // handle spawn
+            if (target == null) {
+                val spawn = homeRoom.findBestSpawn()
+                if (spawn.store.isEmpty() || spawn.store.isLow(RESOURCE_ENERGY)) target = spawn
+            }
+
+            // handle storage
+            if (target == null) {
+                val storage = homeRoom.storage
+                if (storage != null && storage.store.isNotFull()) target = storage
+            }
+
+            // if all else fails, default to spawn
+            if (target == null) target = homeRoom.findBestSpawn()
 
             creep.memory.target = target.id
         }

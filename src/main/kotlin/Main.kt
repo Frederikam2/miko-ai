@@ -29,8 +29,8 @@ fun loop() {
     TickData.refresh()
 
     for ((_, creep) in Game.creeps) {
-        val role = creep.memory.role
         try {
+            val role = creep.memory.role
             role.run(creep)
         } catch (e: Throwable) {
             println("${creep.name}: $e")

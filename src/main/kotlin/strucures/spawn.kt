@@ -49,8 +49,6 @@ object Spawn {
                 if (spawn.handleSpawn(Upgrader, energyAvailable)) return
             } else if (haulers < sourcesSize) {
                 if (spawn.handleSpawn(Hauler, energyAvailable)) return
-            } else if (builders < sourcesSize) {
-                if (spawn.handleSpawn(Builder, energyAvailable)) return
             }
         }
     }

@@ -4,13 +4,15 @@ import ext.*
 import memory.*
 import screeps.api.*
 import screeps.api.structures.StructureContainer
+import screeps.api.structures.StructureExtension
 import screeps.utils.memory.memory
 import util.noHarvestersBehavior
 import kotlin.math.max
 
 object Hauler : IRole {
     override val name = "hauler"
-    private var CreepMemory.isGathering: Boolean by memory { true }
+    private var CreepMemory.isGathering by memory { false }
+    private var CreepMemory.target by memory { "" }
 
     override fun getSpawnParts(budget: Int): Array<BodyPartConstant> {
         // TODO: Optimize for roads
@@ -25,8 +27,13 @@ object Hauler : IRole {
     }
 
     override fun run(creep: Creep) {
-        if (creep.store.isFull()) creep.memory.isGathering = false
-        else if (creep.store.isEmpty()) creep.memory.isGathering = true
+        if (creep.store.isFull()) {
+            creep.memory.isGathering = false
+            creep.memory.target = ""
+        } else if (creep.store.isEmpty()) {
+            creep.memory.isGathering = true
+            creep.memory.target = ""
+        }
 
         if (noHarvestersBehavior(creep, true)) return
 
@@ -66,7 +73,7 @@ object Hauler : IRole {
         if (container != null) {
             when (val status = creep.withdraw(container as StoreOwner, RESOURCE_ENERGY)) {
                 OK, ERR_NOT_ENOUGH_RESOURCES -> Unit
-                else -> status.unexpected(creep, "withdrawling from container")
+                else -> status.unexpected(creep, "withdrawing from container")
             }
             return
         }
@@ -81,15 +88,35 @@ object Hauler : IRole {
     private fun deliver(creep: Creep) {
         // TODO: Deliver to spawn room
         // TODO: Deliver to other structures than spawn
+        val homeRoom = creep.homeRoom
+        if (homeRoom == null) {
+            // If we have no assignment, and we are not at home, move there so we can get visibility
+            creep.moveTo(RoomPosition(25, 25, creep.room.name))
+            return
+        }
 
-        val spawn = creep.room.findBestSpawn()
-        if (creep.pos.isNearTo(spawn)) {
-            when(val status = creep.transfer(spawn, RESOURCE_ENERGY)) {
-                OK, ERR_FULL -> Unit
-                else -> status.unexpected(creep, "delivering energy")
+        var target = Game.getObjectById<StoreOwner>(creep.memory.target)
+        if (target == null) {
+            target = creep.room.findBestSpawn()
+
+            // handle extensions
+            val extensions = homeRoom.find(FIND_MY_STRUCTURES).filter { it.structureType == STRUCTURE_EXTENSION } as List<StructureExtension>
+            if (extensions.isNotEmpty()) {
+                val extension = extensions
+                        .filter { it.store.getFreeCapacity(RESOURCE_ENERGY) > 0 }
+                        .maxBy { it.store.getFreeCapacity(RESOURCE_ENERGY) ?: 0 }
+
+                if (extension !== null) target = extension
             }
-        } else {
-            creep.moveTo(spawn).expectOk(creep, "moving")
+
+            creep.memory.target = target.id
+        }
+
+        when (val status = creep.transfer(target, RESOURCE_ENERGY)) {
+            OK -> Unit
+            ERR_NOT_IN_RANGE -> creep.moveTo(target)
+            ERR_FULL -> creep.memory.target = ""
+            else -> status.unexpected(creep, "delivering energy")
         }
     }
 }

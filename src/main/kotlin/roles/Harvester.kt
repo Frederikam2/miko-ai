@@ -1,8 +1,6 @@
 package roles
 
-import ext.error
-import ext.findBestSpawn
-import ext.warn
+import ext.*
 import memory.*
 import screeps.api.*
 import screeps.api.structures.StructureContainer
@@ -12,7 +10,6 @@ import util.Logger
 object Harvester : IRole {
     override val name = "harvester"
     private var CreepMemory.isHarvesting by memory { false }
-
 
     override fun getSpawnParts(budget: Int): Array<BodyPartConstant>? {
         return when {
@@ -48,11 +45,10 @@ object Harvester : IRole {
 
     private fun handlePrimitiveMode(creep: Creep, source: Source) {
         // Store is full
-        if (creep.store.getFreeCapacity() <= 0)
+        if (creep.store.isFull())
             creep.memory.isHarvesting = false
 
-        // Store is empty
-        if (creep.store.getUsedCapacity() <= 0)
+        if (creep.store.isEmpty())
             creep.memory.isHarvesting = true
 
         if (creep.memory.isHarvesting) {
@@ -109,28 +105,30 @@ object Harvester : IRole {
             }
         }
 
-        val site = Game.constructionSites[assignment.container!!]
-        if (site != null) {
-            if (creep.build(site) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(site)
-            }
-            return true
-        }
+        return false
 
-        // Check if the container needs repair, if it exists
-        val container = Game.getObjectById<StructureContainer>(assignment.container)
-        return if (container != null) {
-            if (container.hitsMax - container.hits > 100) {
-                if (creep.repair(container) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(container)
-                }
-                return true
-            }
-            return false
-        } else {
-            println("Warning: Expected a site or container to be here")
-            false
-        }
+//        val site = Game.constructionSites[assignment.container!!]
+//        if (site != null) {
+//            if (creep.build(site) == ERR_NOT_IN_RANGE) {
+//                creep.moveTo(site)
+//            }
+//            return true
+//        }
+//
+//        // Check if the container needs repair, if it exists
+//        val container = Game.getObjectById<StructureContainer>(assignment.container)
+//        return if (container != null) {
+//            if (container.hitsMax - container.hits > 100) {
+//                if (creep.repair(container) == ERR_NOT_IN_RANGE) {
+//                    creep.moveTo(container)
+//                }
+//                return true
+//            }
+//            return false
+//        } else {
+//            println("Warning: Expected a site or container to be here")
+//            false
+//        }
     }
 
     /**

@@ -9,6 +9,7 @@ val roles: dynamic = object {
     val upgrader = Upgrader
     val harvester = Harvester
     val hauler = Hauler
+    val builder = Builder
 }
 
 interface IRole {

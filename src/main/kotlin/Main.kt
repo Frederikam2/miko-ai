@@ -64,7 +64,7 @@ private fun houseKeeping(creeps: Record<String, Creep>) {
 
     for ((creepName, _) in Memory.creeps) {
         if (creeps[creepName] == null) {
-            console.log("deleting obsolete memory entry for creep $creepName")
+            Logger.info("Pruning obsolete memory", "creep/$creepName")
             delete(Memory.creeps[creepName])
         }
     }
@@ -76,7 +76,7 @@ private fun houseKeeping(creeps: Record<String, Creep>) {
                 it.harvester = null
             }
             if (!Game.creeps.contains(it.hauler ?: "")) {
-                it.harvester = null
+                it.hauler = null
             }
         }
     }

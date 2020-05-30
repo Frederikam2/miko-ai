@@ -1,9 +1,6 @@
 package roles
 
-import ext.expectOk
-import ext.findBestSpawn
-import ext.unexpected
-import ext.warn
+import ext.*
 import memory.*
 import screeps.api.*
 import screeps.utils.memory.memory
@@ -26,8 +23,17 @@ object Hauler : IRole {
     }
 
     override fun run(creep: Creep) {
-        if (creep.store.getFreeCapacity() <= 0) creep.memory.isGathering = false
-        else if (creep.store.getUsedCapacity() <= 0) creep.memory.isGathering = true
+        if (creep.store.isFull()) creep.memory.isGathering = false
+        else if (creep.store.isEmpty()) creep.memory.isGathering = true
+
+        // No Harvesters: Behavior override
+        if (creep.homeRoomMemory.noHarvesters && !creep.store.isEmpty()) {
+            val spawn = creep.homeRoom?.findBestSpawn()
+            if (spawn !== null) {
+                if (creep.transfer(spawn, RESOURCE_ENERGY) != OK)
+                    creep.moveTo(spawn)
+            }
+        }
 
         if (creep.memory.isGathering) gather(creep)
         else deliver(creep)
@@ -69,12 +75,10 @@ object Hauler : IRole {
         }
 
         val dropped = containerPos.lookFor(LOOK_ENERGY)?.firstOrNull()
-        if (dropped == null) {
-            creep.say("Zzz")
+        if (dropped != null) {
+            creep.pickup(dropped).expectOk(creep, "picking up")
             return
         }
-
-        creep.pickup(dropped).expectOk(creep, "picking up")
     }
 
     private fun deliver(creep: Creep) {

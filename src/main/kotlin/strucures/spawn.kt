@@ -1,12 +1,7 @@
 package strucures
 
-import memory.primitiveHarvesters
-import memory.role
-import memory.room
-import roles.Harvester
-import roles.Hauler
-import roles.IRole
-import roles.Upgrader
+import memory.*
+import roles.*
 import screeps.api.*
 import screeps.api.structures.StructureSpawn
 import screeps.utils.unsafe.jsObject
@@ -21,18 +16,35 @@ object Spawn {
         val harvesters = creeps.count { it.memory.role == Harvester }
         val haulers = creeps.count { it.memory.role == Hauler }
         val upgraders = creeps.count { it.memory.role == Upgrader }
+        val builders = creeps.count { it.memory.role == Builder }
 
-        room.memory.primitiveHarvesters = haulers == 0
+        // count of sources in room
+        val sourcesSize = room.find(FIND_SOURCES).size
 
-        if (harvesters == 0) {
-            spawn.handleSpawn(Harvester, room.energyAvailable)
-            return
+        room.memory.noHarvesters = harvesters == 0
+        room.memory.primitiveHarvesters = builders == 0 || haulers < sourcesSize
+
+        // primitive room spawning, X = number of sources in room
+        // Priority: X Harvesters, 1 Upgrader, X Builders, X Haulers
+        if (harvesters == 0 || harvesters < sourcesSize) {
+            if (spawn.handleSpawn(Harvester, room.energyCapacityAvailable)) return
+        } else if (upgraders == 0) {
+            if (spawn.handleSpawn(Upgrader, room.energyCapacityAvailable)) return
+        } else if (builders == 0) {
+            if (spawn.handleSpawn(Builder, room.energyCapacityAvailable)) return
+        } else if (haulers < sourcesSize) {
+            if (spawn.handleSpawn(Hauler, room.energyCapacityAvailable)) return
         }
 
-        if (harvesters < room.find(FIND_SOURCES).size) {
-            if (spawn.handleSpawn(Harvester, room.energyCapacityAvailable)) return
-        } else if (upgraders < 2) {
-            if (spawn.handleSpawn(Upgrader, room.energyCapacityAvailable)) return
+        // non-primitive spawning
+        if (!room.memory.primitiveHarvesters) {
+            if (upgraders < 2) {
+                if (spawn.handleSpawn(Upgrader, room.energyCapacityAvailable)) return
+            } else if (haulers < sourcesSize) {
+                if (spawn.handleSpawn(Hauler, room.energyCapacityAvailable)) return
+            } else if (builders < sourcesSize) {
+                if (spawn.handleSpawn(Builder, room.energyCapacityAvailable)) return
+            }
         }
     }
 

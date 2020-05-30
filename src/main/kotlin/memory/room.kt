@@ -22,8 +22,9 @@ var SourceAssignment.containerPos: RoomPosition? by roomPosition()
 val SourceAssignment.containerStruct: StructureContainer?
     get() = Game.getObjectById<Identifiable>(container) as? StructureContainer
 
-var RoomMemory.primitiveHarvesters by memory { false }
 var RoomMemory.sources by memory<Array<SourceAssignment>>()
+var RoomMemory.noHarvesters by memory { false }
+var RoomMemory.primitiveHarvesters by memory { false }
 
 /**
  * @return the [SourceAssignment] for a given [Creep] if it exists

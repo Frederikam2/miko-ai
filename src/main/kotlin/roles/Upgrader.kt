@@ -1,6 +1,11 @@
 package roles
 
 import ext.findBestSpawn
+import ext.isEmpty
+import ext.isFull
+import memory.homeRoom
+import memory.homeRoomMemory
+import memory.noHarvesters
 import screeps.api.*
 import screeps.utils.memory.memory
 
@@ -13,11 +18,17 @@ object Upgrader : IRole {
     }
 
     override fun run(creep: Creep) {
-        if (creep.store.getFreeCapacity() <= 0)
-            creep.memory.isUpgrading = true
+        if (creep.store.isFull()) creep.memory.isUpgrading = true
+        if (creep.store.isEmpty()) creep.memory.isUpgrading = false
 
-        if (creep.store.getUsedCapacity() <= 0)
-            creep.memory.isUpgrading = false
+        // No Harvesters: Behavior override
+        if (creep.homeRoomMemory.noHarvesters && !creep.store.isEmpty()) {
+            val spawn = creep.homeRoom?.findBestSpawn()
+            if (spawn !== null) {
+                if (creep.transfer(spawn, RESOURCE_ENERGY) != OK)
+                    creep.moveTo(spawn)
+            }
+        }
 
         if (creep.memory.isUpgrading) {
             val controller = creep.room.controller!!

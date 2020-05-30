@@ -68,9 +68,9 @@ object Hauler : IRole {
             return
         }
 
-        val container = containerPos.lookFor(LOOK_STRUCTURES)!!.firstOrNull { it.structureType == STRUCTURE_CONTAINER } as StructureContainer
+        val container = containerPos.lookFor(LOOK_STRUCTURES)!!.firstOrNull { it.structureType == STRUCTURE_CONTAINER }
         if (container != null) {
-            when (val status = creep.withdraw(container, RESOURCE_ENERGY)) {
+            when (val status = creep.withdraw(container as StoreOwner, RESOURCE_ENERGY)) {
                 OK, ERR_NOT_ENOUGH_RESOURCES -> Unit
                 else -> status.unexpected(creep, "withdrawling from container")
             }

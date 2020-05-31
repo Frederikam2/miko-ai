@@ -3,7 +3,6 @@ package roles
 import ext.*
 import memory.*
 import screeps.api.*
-import screeps.api.structures.StructureContainer
 import screeps.utils.memory.memory
 import util.Logger
 
@@ -103,9 +102,9 @@ object Harvester : IRole {
         }
 
         // Make sure to stand on top of container
-        val container = Game.getObjectById<StructureContainer>(assignment.container)
-        if (container != null && !creep.pos.isEqualTo(container.pos)) {
-            creep.moveTo(container.pos)
+        val containerPos = assignment.containerPos
+        if (containerPos != null && !creep.pos.isEqualTo(containerPos)) {
+            creep.moveTo(containerPos)
 
             return true
         }

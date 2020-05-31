@@ -62,7 +62,7 @@ object Builder : IRole {
             var repairTarget = Game.getObjectById<Structure>(creep.memory.target)
             if (repairTarget == null) {
                 repairTarget = homeRoom.find(FIND_STRUCTURES)
-                        .filter { it.structureType == STRUCTURE_CONTAINER }
+                        .filter { it.structureType == STRUCTURE_CONTAINER || it.structureType == STRUCTURE_ROAD }
                         .filter { it.hitsMax - it.hits != 0 }
                         .maxBy { it.hitsMax - it.hits }
 

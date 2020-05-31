@@ -108,13 +108,13 @@ object Hauler : IRole {
             // handle spawn
             if (target == null) {
                 val spawn = homeRoom.findBestSpawn()
-                if (spawn.store.isEmpty() || spawn.store.isLow(RESOURCE_ENERGY)) target = spawn
+                if (spawn.store.isLow(RESOURCE_ENERGY)) target = spawn
             }
 
             // handle storage
             if (target == null) {
                 val storage = homeRoom.storage
-                if (storage != null && storage.store.isNotFull()) target = storage
+                if (storage != null) target = storage
             }
 
             // if all else fails, default to spawn

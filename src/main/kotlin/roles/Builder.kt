@@ -5,7 +5,6 @@ import memory.*
 import screeps.api.*
 import screeps.api.structures.Structure
 import screeps.utils.memory.memory
-import util.Logger
 import util.limitedHaulersBehavior
 import util.noHarvestersBehavior
 import util.primitiveHarvestersBehavior
@@ -24,7 +23,7 @@ object Builder : IRole {
             STRUCTURE_TOWER
     )
 
-    override fun getSpawnParts(budget: Int): Array<BodyPartConstant>? {
+    override fun getSpawnParts(budget: Int, roomMemory: RoomMemory): Array<BodyPartConstant>? {
         return when {
             else -> arrayOf(WORK, CARRY, MOVE) // 200
         }

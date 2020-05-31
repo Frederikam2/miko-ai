@@ -11,7 +11,7 @@ import util.TickData
 object Spawn {
     fun run(room: Room) {
         val creeps = TickData.creepsByHome[room.name] ?: emptyList()
-        val spawn = room.find(FIND_MY_SPAWNS).firstOrNull() { it.spawning == null }
+        val spawn = room.find(FIND_MY_SPAWNS).firstOrNull { it.spawning == null }
         spawn ?: return
 
         val harvesters = creeps.count { it.memory.role == Harvester }
@@ -31,24 +31,23 @@ object Spawn {
             Logger.info("primitiveHarvesters transition to '${room.memory.primitiveHarvesters}'", "room/${room.name}")
 
         // primitive room spawning, X = number of sources in room
-        // Priority: X Harvesters, 1 Upgrader, X Builders, X Haulers
-        val energyAvailable = room.energyAvailable
+        // Priority: X Harvesters, 1 Upgrader, X Haulers, 1 Builders
         if (harvesters == 0 || harvesters < sourcesSize) {
-            if (spawn.handleSpawn(Harvester, energyAvailable)) return
+            if (spawn.handleSpawn(Harvester, room)) return
         } else if (upgraders == 0) {
-            if (spawn.handleSpawn(Upgrader, energyAvailable)) return
+            if (spawn.handleSpawn(Upgrader, room)) return
         } else if (haulers < sourcesSize) {
-            if (spawn.handleSpawn(Hauler, energyAvailable)) return
+            if (spawn.handleSpawn(Hauler, room)) return
         } else if (builders == 0) {
-            if (spawn.handleSpawn(Builder, energyAvailable)) return
+            if (spawn.handleSpawn(Builder, room)) return
         }
 
         // non-primitive spawning
         if (!room.memory.primitiveHarvesters) {
             if (upgraders < 2) {
-                if (spawn.handleSpawn(Upgrader, energyAvailable)) return
+                if (spawn.handleSpawn(Upgrader, room)) return
             } else if (haulers < sourcesSize) {
-                if (spawn.handleSpawn(Hauler, energyAvailable)) return
+                if (spawn.handleSpawn(Hauler, room)) return
             }
         }
     }
@@ -56,8 +55,9 @@ object Spawn {
     /**
      * @return if the spawn was successful
      */
-    private fun StructureSpawn.handleSpawn(role: IRole, budget: Int): Boolean {
-        val parts = role.getSpawnParts(budget) ?: return false
+    private fun StructureSpawn.handleSpawn(role: IRole, room: Room): Boolean {
+        val budget = room.energyAvailable
+        val parts = role.getSpawnParts(budget, room.memory) ?: return false
         val roomName = room.name
         val creepMemory = jsObject<CreepMemory> {
             this.role = role

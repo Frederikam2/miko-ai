@@ -12,7 +12,7 @@ object Upgrader : IRole {
     override val name = "upgrader"
     private var CreepMemory.isUpgrading by memory { false }
 
-    override fun getSpawnParts(budget: Int): Array<BodyPartConstant>? {
+    override fun getSpawnParts(budget: Int, roomMemory: RoomMemory): Array<BodyPartConstant>? {
         return arrayOf(WORK, CARRY, MOVE)
     }
 

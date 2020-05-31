@@ -1,10 +1,8 @@
 package roles
 
-import screeps.api.BodyPartConstant
-import screeps.api.Creep
-import screeps.api.CreepMemory
-import screeps.api.Room
+import screeps.api.*
 
+@Suppress("unused")
 val roles: dynamic = object {
     val upgrader = Upgrader
     val harvester = Harvester
@@ -18,7 +16,7 @@ interface IRole {
     /**
      * @return an array of body parts to spawn, or null to not spawn
      */
-    fun getSpawnParts(budget: Int): Array<BodyPartConstant>?
+    fun getSpawnParts(budget: Int, roomMemory: RoomMemory): Array<BodyPartConstant>?
 
     /**
      * Lifecycle event: Called when a creep has started spawning

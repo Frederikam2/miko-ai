@@ -5,16 +5,25 @@ import memory.*
 import screeps.api.*
 import screeps.utils.memory.memory
 import util.Logger
+import kotlin.math.max
 
 object Harvester : IRole {
     override val name = "harvester"
     private var CreepMemory.isHarvesting by memory { false }
 
-    override fun getSpawnParts(budget: Int): Array<BodyPartConstant>? {
-        return when {
-            budget >= 300 -> arrayOf(WORK, CARRY, CARRY, MOVE, MOVE) // 300
-            else -> arrayOf(WORK, CARRY, MOVE) // 200
+    override fun getSpawnParts(budget: Int, roomMemory: RoomMemory): Array<BodyPartConstant>? {
+        if (roomMemory.primitiveHarvesters) {
+            return arrayOf(WORK, CARRY, MOVE)
         }
+
+        val parts = mutableListOf<BodyPartConstant>()
+        val moveCost = BODYPART_COST[MOVE]!!
+        var workCount = max(1, (budget - moveCost) / BODYPART_COST[WORK]!!)
+
+        repeat(workCount) { parts.add(WORK) }
+        parts.add(MOVE)
+
+        return parts.toTypedArray()
     }
 
     override fun run(creep: Creep) {
@@ -69,8 +78,6 @@ object Harvester : IRole {
      * @return true if this creep if busy working on the container for this turn
      */
     private fun handleContainer(creep: Creep, source: Source): Boolean {
-        if (creep.store.getUsedCapacity() < 25) return false
-
         val assignment = creep.room.getOrAssignSource(creep) ?: return false
         if (assignment.container == null) {
             var pos = assignment.containerPos

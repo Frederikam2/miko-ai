@@ -3,7 +3,6 @@ package roles
 import ext.*
 import memory.*
 import screeps.api.*
-import screeps.api.structures.StructureContainer
 import screeps.api.structures.StructureExtension
 import screeps.utils.memory.memory
 import util.noHarvestersBehavior
@@ -14,7 +13,7 @@ object Hauler : IRole {
     private var CreepMemory.isGathering by memory { false }
     private var CreepMemory.target by memory { "" }
 
-    override fun getSpawnParts(budget: Int): Array<BodyPartConstant> {
+    override fun getSpawnParts(budget: Int, roomMemory: RoomMemory): Array<BodyPartConstant> {
         // TODO: Optimize for roads
         val sizeStepCost = BODYPART_COST[CARRY]!! + BODYPART_COST[MOVE]!!
         val steps = max(1, budget / sizeStepCost)

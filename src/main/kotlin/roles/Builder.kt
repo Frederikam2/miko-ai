@@ -5,6 +5,7 @@ import memory.*
 import screeps.api.*
 import screeps.api.structures.Structure
 import screeps.utils.memory.memory
+import util.Logger
 import util.limitedHaulersBehavior
 import util.noHarvestersBehavior
 import util.primitiveHarvestersBehavior
@@ -65,7 +66,10 @@ object Builder : IRole {
             if (emergencyRepairs.isNotEmpty()) target = emergencyRepairs.first()
             else {
                 val repairs = findRepairTargets(homeRoom, false)
-                if (repairs.isNotEmpty()) target = repairs.first()
+                if (repairs.isNotEmpty()) {
+                    target = repairs.first()
+                    creep.warn("Started emergency repair on '${target.structureType}'")
+                }
             }
 
             // save target

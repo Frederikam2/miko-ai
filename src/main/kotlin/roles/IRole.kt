@@ -5,13 +5,25 @@ import screeps.api.Creep
 import screeps.api.CreepMemory
 import screeps.api.Room
 
+val roles: dynamic = object {
+    val upgrader = Upgrader
+    val harvester = Harvester
+    val hauler = Hauler
+    val builder = Builder
+}
+
 interface IRole {
     val name: String
-    fun loop(creep: Creep)
 
     /**
      * @return an array of body parts to spawn, or null to not spawn
      */
-    fun spawn(budget: Int): Array<BodyPartConstant>?
-    fun onSpawn(room: Room, memory: CreepMemory) {}
+    fun getSpawnParts(budget: Int): Array<BodyPartConstant>?
+
+    /**
+     * Lifecycle event: Called when a creep has started spawning
+     */
+    fun onSpawning(room: Room, memory: CreepMemory) {}
+
+    fun run(creep: Creep)
 }

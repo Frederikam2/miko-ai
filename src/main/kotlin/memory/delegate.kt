@@ -4,18 +4,32 @@ import screeps.api.MemoryMarker
 import screeps.api.RoomPosition
 import screeps.utils.memory.MemoryMappingDelegate
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
-fun positionDelegate(): ReadWriteProperty<MemoryMarker, RoomPosition?> {
-    @Suppress("RemoveExplicitTypeArguments")
-    return MemoryMappingDelegate<RoomPosition?>({ null }, { "${it!!.x}:${it.y}:${it.roomName}"}, { str ->
-        val (x, y, room) = str.split(':')
-        RoomPosition(x.toInt(), y.toInt(), room)
-    })
+private fun RoomPosition.serialise() = "$x:$y:$roomName"
+private fun deserializeRoom(str: String): RoomPosition {
+    val (x, y, room) = str.split(':')
+    return RoomPosition(x.toInt(), y.toInt(), room)
 }
 
-fun positionDelegate(default: () -> RoomPosition): ReadWriteProperty<MemoryMarker, RoomPosition> {
-    return MemoryMappingDelegate(default, { "${it.x}:${it.y}:${it.roomName}"}, { str ->
-        val (x, y, room) = str.split(':')
-        RoomPosition(x.toInt(), y.toInt(), room)
-    })
+fun memoryPositionDelegate(): ReadWriteProperty<MemoryMarker, RoomPosition?> {
+    @Suppress("RemoveExplicitTypeArguments")
+    return MemoryMappingDelegate<RoomPosition?>({ null }, { it!!.serialise() }, ::deserializeRoom)
+}
+
+fun memoryPositionDelegate(default: () -> RoomPosition): ReadWriteProperty<MemoryMarker, RoomPosition> =
+        MemoryMappingDelegate(default, RoomPosition::serialise, ::deserializeRoom)
+
+fun roomPosition() = RoomPositionDelegate()
+
+/** Used with inner memory elements */
+class RoomPositionDelegate : ReadWriteProperty<dynamic, RoomPosition?> {
+    override fun getValue(thisRef: dynamic, property: KProperty<*>): RoomPosition? {
+        val backing = thisRef[property.name] as? String ?: return null
+        return deserializeRoom(backing)
+    }
+
+    override fun setValue(thisRef: dynamic, property: KProperty<*>, value: RoomPosition?) {
+        thisRef[property.name] = value?.serialise()
+    }
 }

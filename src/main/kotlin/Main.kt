@@ -34,7 +34,7 @@ fun loop() {
             val role = creep.memory.role
             role.run(creep)
         } catch (e: Throwable) {
-            println("${creep.name}: $e")
+            Logger.error(e.toString(), "creep/${creep.name}")
         }
     }
 
@@ -74,7 +74,7 @@ private fun houseKeeping(creeps: Record<String, Creep>) {
         sources.forEach {
             if (!Game.creeps.contains(it.harvester ?: "")) it.harvester = null
             if (!Game.creeps.contains(it.hauler ?: "")) it.hauler = null
-            if (Game.structures.contains(it.container ?: "")) it.container = null
+            if (!Game.structures.contains(it.container ?: "")) it.container = null
         }
     }
 }

@@ -25,7 +25,7 @@ object Spawn {
         room.memory.noHarvesters = harvesters == 0
         room.memory.limitedHaulers = haulers < sourcesSize
         val primLast = room.memory.primitiveHarvesters
-        room.memory.primitiveHarvesters = haulers < sourcesSize
+        room.memory.primitiveHarvesters = haulers < 1
 
         if (primLast != room.memory.primitiveHarvesters)
             Logger.info("primitiveHarvesters transition to '${room.memory.primitiveHarvesters}'", "room/${room.name}")

@@ -31,7 +31,7 @@ object Harvester : IRole {
         if (handleContainer(creep, source)) return
 
         when (val status = creep.harvest(source)) {
-            OK, ERR_NOT_ENOUGH_RESOURCES, ERR_BUSY -> Unit
+            OK, ERR_NOT_ENOUGH_RESOURCES -> Unit
             ERR_NOT_IN_RANGE -> creep.moveTo(source)
             else -> {
                 creep.error("Failed to harvest from assigned source: '$status'", true)
@@ -83,21 +83,15 @@ object Harvester : IRole {
             // Check if the container site is placed, but not remembered
             pos = RoomPosition(pos.x, pos.y, pos.roomName)
             val site = pos.lookFor(LOOK_CONSTRUCTION_SITES)!!.firstOrNull { it.structureType == STRUCTURE_CONTAINER }
-            if (site != null) {
-                assignment.container = site.id
-                println("Found container site at $pos with ID ${site.id}")
-            }
+            if (site != null) assignment.container = site.id
 
             // Check if there is already a container at the position
             // We reach this state with any new container
             val container = pos.lookFor(LOOK_STRUCTURES)!!.firstOrNull { it.structureType == STRUCTURE_CONTAINER }
-            if (container != null) {
-                assignment.container = container.id
-                println("Found container at $pos with ID ${container.id}")
-            }
+            if (container != null) assignment.container = container.id
 
             if (assignment.container == null) {
-                println("Couldn't find or create container or container site!")
+                Logger.error("Couldn't find or create container or container site!", "creep/${creep.name}")
             }
         }
 
